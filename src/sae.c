@@ -79,18 +79,19 @@ int applyLogic(struct messageFields *messageReceived, struct inputData *datiIn, 
               if(datiIn->valEndTimestamp <= datiIn->onBoardTime){ // if previous stored message has higher priority but it is no more valid, new message will be saved
                   //TEST CASE 1.1
                   //printf("TEST CASE 1.1 \n previous stored message has higher priority but it is no more valid, new message will be saved \n %i<=0 && %i < %i && %i <= %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
-                  datiOut->doNothing = 1;
-                  datiOut->eraseTxQueue = 0;
-                  OutMsgLenght = 0;
-              } else {//  previous stored message has higher priority and it is still valid
-                  //TEST CASE 1.2
-                  //printf("TEST CASE 1.2 \n previous stored message has higher priority and it is still valid \n %i<=0 && %i < %i && %i > %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
                   datiOut->message = datiIn->message;
                   datiOut->messageId = messageReceived->messageId;
                   datiOut->messagePriority = messageReceived->messagePriority;
                   datiOut->valEndTimestamp = messageReceived->valEndTimestamp;
                   datiOut->doNothing = 0;
                   datiOut->eraseTxQueue = 0;
+              } else {//  previous stored message has higher priority and it is still valid
+                  //TEST CASE 1.2
+                  //printf("TEST CASE 1.2 \n previous stored message has higher priority and it is still valid \n %i<=0 && %i < %i && %i > %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
+                  datiOut->doNothing = 1;
+                  datiOut->eraseTxQueue = 0;
+                  OutMsgLenght = 0;
+
               }
             }
         }
@@ -210,7 +211,7 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
         // issuer
         //**********************************
         int issuer = 0;
-        issuer |= (bitstream_ptr[11] &0xf);
+        issuer |= (bitstream_ptr[11] &0xff);
         issuer = issuer << 8;
         issuer |= (bitstream_ptr[12] &0xff);
 
@@ -323,7 +324,7 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
 	message_length |= (bitstream_ptr[(21+messageIndexShift)] &0xff)<<20;
     message_length |= (bitstream_ptr[(22+messageIndexShift)]<<12 &0xff000);
     message_length |= (bitstream_ptr[(23+messageIndexShift)]<<4 &0xff0);
-    message_length |= bitstream_ptr[(24+messageIndexShift)] &0xf;
+    message_length |= bitstream_ptr[(24+messageIndexShift)] &0xf0;
 
     //**********************************
     // NHT
