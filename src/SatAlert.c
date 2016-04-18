@@ -14,13 +14,21 @@
 #include <time.h>
 
 
-
+////#define FIRST_UPLOAD 1 // 0= non-first generated message, 1= first generated message (no stored message)
 #define STAND_VERSION 1
-#define ULTRASHORT_MSG_TYPE 0 //0=ultrashort, 1=mames update, 2=cancel, 3=mames ack, 4=mames alert
-#define CANCEL_MSG_TYPE 2
-#define ALERT_MSG_TYPE 4
+////#define MSG_TYPE 0 //0=ultrashort, 1=mames update, 2=cancel, 3=mames ack, 4=mames alert
+////#define MSG_NOCAP 0 // 0=the payload does NOT encapsulate a CAP message, 1= the payload DOES encapsulate a CAP message
+#define ULTRASHORT_MSG_TYPE 0 //0=ultrashort, 1=mames update, 2=cancel, 3=mames ack, 4=mames alert // to be removed
+#define CANCEL_MSG_TYPE 2 // to be removed
+#define ALERT_MSG_TYPE 4 // to be removed
+#define MESSAGE_ID 12345
+////#define MAMES_PROVIDER_ID 1
+////#define ALERT_ISSUER_ID 3
+////#define PRIORITY 1
 #define NOTIFICATION_AREA1 9809478 //100101011010111001000110
 #define NOTIFICATION_AREA2 1457399 //000101100011110011110111
+////#define VALIDITY_START 1460642840 // in seconds
+////#define VALIDITY_END 1463234801 // in seconds
 #define VALIDITY_START_YEAR 14 //001110
 #define VALIDITY_START_MONTH 10 //1010
 #define VALIDITY_START_DAY 23 //10111
@@ -46,6 +54,7 @@
 #define NOCAP_ARRAY_SIZE 28
 
 
+
 void initMyRandom();
 int get_random_int(int limit);
 char *int2bin(int a, char *buffer, int buf_size);
@@ -54,33 +63,62 @@ int generate_cancel(int priority, int validity_start, int validity_end, char* bi
 int generate_cap(int priority, int validity_start, int validity_end, char* bitstream_ptr);
 int generate_nocap(int priority, int validity_start, int validity_end, char* bitstream_ptr);
 int generateMessage(int msg_type, int priority, _Bool msg_nocap, int validity_start, int validity_end, char* generated_message);
+////int generateMessage(int msg_type, int id, int ref_id, int length, int priority, _Bool msg_nocap, int validity_start, int validity_end, char* generated_message)
 
 
-int messageCounter;
+int messageCounter = MESSAGE_ID;
 
 int main(void){
 	initMyRandom();
 	int i;
 	char gen_message[28];
     char messageToBeSent[1500];
-    int msgTypeSequence[15] = {0,6,6,6,4,6,6,2,4,6,6,6,6,6,6};
-    int msgPrioritySequence[15] = {5,0,0,0,6,0,0,6,5,0,0,0,0,0,0};
+    //int msgTypeSequence[15] = {0,4,4,4,4,4,4,4,4,4,4,4,4,4,0};
+    //int msgPrioritySequence[15] = {5,0,6,7,6,8,8,6,5,0,0,0,0,0,0};
 	struct inputData dataIn = {gen_message, -1, -1, -1, 0};
 	struct outputData dataOut = {messageToBeSent, -1, -1, 0, 0};
 
     for(i=0;i<15;i++){
-        dataIn.onBoardTime = time(NULL);
+
+
+        time_t now = time(NULL);
+
+    	dataIn.onBoardTime = now;
+
+        ////int first_upload =  FIRST_UPLOAD;
+        ////if(first_upload == 1)
+        ////dataIn.messageId = MESSAGE_ID;
+        ////dataIn.messagePriority = PRIORITY;
+        ////dataIn.valEndTimestamp = VALIDITY_END;
+        ////dataIn.txRequest = 0;
+
+
         printf("\n\n\n\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n Step %i\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n", messageCounter);
     	int status = 0;
-        int rand_type = get_random_int(4)*2;
+        int rand_type = get_random_int(4)*2; //to be removed
         //int rand_type = msgTypeSequence[i];
         //int rand_priority = msgPrioritySequence[i];
-        int rand_priority = get_random_int(15);
-        int rand_bool_nocap = get_random_int(2);
-        int rand_validityEnd;
-        if(i==0) rand_validityEnd = time(NULL)+1;
-        else rand_validityEnd = time(NULL)+get_random_int(604800);
-        if(rand_type == 6) dataIn.txRequest = 1; else dataIn.txRequest = 0;
+        int rand_priority = get_random_int(15);//to be removed
+        int rand_bool_nocap = get_random_int(2);//to be removed
+        int rand_validityStart = now -1; //to be removed
+        int rand_validityEnd; //to be removed
+
+        if (i==0)
+        	rand_validityEnd = now + 1;//to be removed
+        else
+        	rand_validityEnd = rand_validityStart + 2 + get_random_int(5); //to be removed
+
+        if (rand_type == 6)
+        	dataIn.txRequest = 1;
+        else
+        	dataIn.txRequest = 0; //to be removed
+
+        //// NEW MESSAGE MAMES HEADER
+        ////int msg_id = MESSAGE_ID;
+        ////int msg_type = MSG_TYPE;
+        ////int msg_priority = PRIORITY;
+        ////int msg_bool_nocap = MSG_NOCAP;
+        ////int msg_validityEnd = VALIDITY_END;
 
         printf("\n-----------------------------------\nInput stored parameters\n-----------------------------------\n");
         printf("messagePriority = %i\n", dataIn.messagePriority);
@@ -89,20 +127,32 @@ int main(void){
         printf("onBoardTime = %i\n", dataIn.onBoardTime);
         printf("-----------------------------------\n");
 
+        ////printf("\n-----------------------------------\nInput new message parameters\n-----------------------------------\n");
+        ////printf("msg_id = %i\n", msg_id);
+        ////printf("msg_type = %i\n", msg_type);
+        ////printf("msg_priority = %i\n", msg_priority);
+        ////printf("msg_bool_nocap = %i\n", msg_bool_nocap);
+        ////printf("msg_validityEnd = %i\n", msg_validityEnd);
+        ////if (msg_type < 6 ) status = generateMessage(msg_id, msg_type, msg_priority, msg_bool_nocap, time(NULL), msg_validityEnd, gen_message); ///to be updated!!!!
+
         printf("rand_type = %i\n", rand_type);
         printf("rand_priority = %i\n", rand_priority);
         printf("rand_bool_nocap = %i\n", rand_bool_nocap);
         printf("rand_validityEnd = %i\n", rand_validityEnd);
-        if(rand_type < 6) status = generateMessage(rand_type, rand_priority, rand_bool_nocap, time(NULL), rand_validityEnd, gen_message);
 
-        if(status == 1) printf("Priority not in range [0,15]\n");
+        if (rand_type < 6)
+
+        	status = generateMessage(rand_type, rand_priority, rand_bool_nocap,
+        			rand_validityStart, rand_validityEnd, gen_message);
+
+        if (status == 1) printf("Priority not in range [0,15]\n");
         else if(status == 2) printf("Validity timestamps need to be positive\n");
         else if(status == 3) printf("Validity Start time must be greater than Validity End time\n");
         else if(status == 4) printf("Message type can be only in range [0,4]\n0=ultrashort\n1=mames update\n2=cancel\n3=mames ack\n4=mames alert\n");
         else if(status == 5) printf("Kind of message not implemented yet\n");
         else {
-       	     dataIn.message = gen_message;
-       	     dataOut.message = messageToBeSent;
+        	dataIn.message = gen_message;
+        	dataOut.message = messageToBeSent;
 
              printf("\nSending informations to SAE logic...\n");
              saeFunction(&dataIn, &dataOut);
@@ -122,9 +172,9 @@ int main(void){
              dataIn.messagePriority = dataOut.messagePriority;
              dataIn.valEndTimestamp = dataOut.valEndTimestamp;
         }
-        sleep(200);
+        sleep(1);
     }
-    getchar();
+//    getchar();
     return EXIT_SUCCESS;
 }
 
@@ -134,12 +184,13 @@ int main(void){
 //*****************************************************************************
 int generateMessage(int msg_type, int priority, _Bool msg_nocap, int validity_start, int validity_end, char* generated_message){
 	int res = 0;
-	messageCounter++;
+//	messageCounter++;
 
-    if(priority < 0 || priority > 15) return 1;
-    if(validity_start < 0 || validity_end < 0) return 2;
-    if(validity_start > validity_end) return 3;
-    if(msg_type <0 || msg_type>4) return 4;
+
+    if(priority < 0 || priority > 15) return 1; //?
+    if(validity_start < 0 || validity_end < 0) return 2; //?
+    if(validity_start > validity_end) return 3; //?
+    if(msg_type <0 || msg_type>4) return 4; //?
 
     switch (msg_type) {
     case 0: //ultrashort
@@ -155,8 +206,10 @@ int generateMessage(int msg_type, int priority, _Bool msg_nocap, int validity_st
        return 5;
        break;
     case 4: //MAMES alert
-       if(msg_nocap) res = generate_nocap(priority, validity_start, validity_end, generated_message);
-       else res = generate_cap(priority, validity_start, validity_end, generated_message);
+       if (msg_nocap)
+    	   res = generate_nocap(priority, validity_start, validity_end, generated_message); // NO CAP
+       else
+    	   res = generate_cap(priority, validity_start, validity_end, generated_message); // CAP
        break;
     default:
        return 4;
@@ -180,7 +233,7 @@ int generateMessage(int msg_type, int priority, _Bool msg_nocap, int validity_st
 int generate_nocap(int priority, int validity_start, int validity_end, char* bitstream_ptr){
     _Bool verbose = 1;
     printf("********************************\n  NO_CAP MESSAGE generated \n********************************\n");
-     int i;
+    int i;
     char buffer[BUF_SIZE];
     buffer[BUF_SIZE - 1] = '\0';
     char buffer8[9];
@@ -189,25 +242,31 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
 
     struct tm * time_start;
     time_t validity_start_time_t = validity_start;
-    time_start = localtime(&validity_start_time_t);
+    //time_start = localtime(&validity_start_time_t);
+    time_start = gmtime(&validity_start_time_t);
     int val_start_year = time_start->tm_year-100;
     int val_start_month = time_start->tm_mon+1;
     int val_start_day = time_start->tm_mday;
-    int val_start_hour = time_start->tm_hour-2;
+    int val_start_hour = time_start->tm_hour+1;
     int val_start_min = time_start->tm_min;
     int val_start_sec = time_start->tm_sec;
 
+
+
     struct tm * time_end;
     time_t validity_end_time_t = validity_end;
-    time_end = localtime(&validity_end_time_t);
+    //time_end = localtime(&validity_end_time_t);
+    time_end =gmtime(&validity_end_time_t);
     int val_end_year = time_end->tm_year-100;
     int val_end_month = time_end->tm_mon+1;
     int val_end_day = time_end->tm_mday;
-    int val_end_hour = time_end->tm_hour-2;
+    int val_end_hour = time_end->tm_hour+1;
     int val_end_min = time_end->tm_min;
     int val_end_sec = time_end->tm_sec;
 
-    printf("Validity from [%i] %i/%i/%i %i:%i:%i to [%i] %i/%i/%i %i:%i:%i\n", validity_start, val_start_day, val_start_month, val_start_year, val_start_hour, val_start_min, val_start_sec, validity_end, val_end_day, val_end_month, val_end_year, val_end_hour, val_end_min, val_end_sec);
+    printf("Validity from [%i] %i/%i/%i %i:%i:%i to [%i] %i/%i/%i %i:%i:%i\n", validity_start, val_start_day,
+    		val_start_month, val_start_year, val_start_hour, val_start_min, val_start_sec, validity_end,
+    		val_end_day, val_end_month, val_end_year, val_end_hour, val_end_min, val_end_sec);
 
 
     //************************
@@ -376,21 +435,23 @@ int generate_cap(int priority, int validity_start, int validity_end, char* bitst
 
     struct tm * time_start;
     time_t validity_start_time_t = validity_start;
-    time_start = localtime(&validity_start_time_t);
+    //time_start = localtime(&validity_start_time_t);
+    time_start = gmtime(&validity_start_time_t);
     int val_start_year = time_start->tm_year-100;
     int val_start_month = time_start->tm_mon+1;
     int val_start_day = time_start->tm_mday;
-    int val_start_hour = time_start->tm_hour-2;
+    int val_start_hour = time_start->tm_hour+1;
     int val_start_min = time_start->tm_min;
     int val_start_sec = time_start->tm_sec;
 
     struct tm * time_end;
     time_t validity_end_time_t = validity_end;
-    time_end = localtime(&validity_end_time_t);
+    //time_end = localtime(&validity_end_time_t);
+    time_end = gmtime(&validity_end_time_t);
     int val_end_year = time_end->tm_year-100;
     int val_end_month = time_end->tm_mon+1;
     int val_end_day = time_end->tm_mday;
-    int val_end_hour = time_end->tm_hour-2;
+    int val_end_hour = time_end->tm_hour+1;
     int val_end_min = time_end->tm_min;
     int val_end_sec = time_end->tm_sec;
 
@@ -557,7 +618,7 @@ int generate_cancel(int priority, int validity_start, int validity_end, char* bi
      //********************************
     // reference + notification area
     //********************************
-    int gen_id_old_message = get_random_int(4095);
+    int gen_id_old_message = MESSAGE_ID;
     int2bin(gen_id_old_message, buffer, BUF_SIZE - 1);
     printf("gen_id_old_message = %s -> %i\n", buffer, gen_id_old_message);
     bitstream_ptr[4] = (gen_id_old_message>>4) &0xff;
@@ -613,21 +674,23 @@ int generate_ultrashort(int priority, int validity_start, int validity_end, char
 
     struct tm * time_start;
     time_t validity_start_time_t = validity_start;
-    time_start = localtime(&validity_start_time_t);
+    //time_start = localtime(&validity_start_time_t);
+    time_start = gmtime(&validity_start_time_t);
     int val_start_year = time_start->tm_year-100;
     int val_start_month = time_start->tm_mon+1;
     int val_start_day = time_start->tm_mday;
-    int val_start_hour = time_start->tm_hour-2;
+    int val_start_hour = time_start->tm_hour+1;
     int val_start_min = time_start->tm_min;
     int val_start_sec = time_start->tm_sec;
 
     struct tm * time_end;
     time_t validity_end_time_t = validity_end;
-    time_end = localtime(&validity_end_time_t);
+    //time_end = localtime(&validity_end_time_t);
+    time_end = gmtime(&validity_end_time_t);
     int val_end_year = time_end->tm_year-100;
     int val_end_month = time_end->tm_mon+1;
     int val_end_day = time_end->tm_mday;
-    int val_end_hour = time_end->tm_hour-2;
+    int val_end_hour = time_end->tm_hour+1;
     int val_end_min = time_end->tm_min;
     int val_end_sec = time_end->tm_sec;
 
