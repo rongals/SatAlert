@@ -288,10 +288,10 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     t_start.tm_year = val_start_year + 100;
     t_start.tm_mon = val_start_month-1;
     t_start.tm_mday = val_start_day;
-    t_start.tm_hour = val_start_hour+2;
+    t_start.tm_hour = val_start_hour;
     t_start.tm_min = val_start_min;
     t_start.tm_sec = val_start_sec;
-    t_start.tm_isdst = -1;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+    t_start.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
     timestamp_start = mktime(&t_start);
     messageReceived->valStartTimestamp = timestamp_start;
     struct tm t_end;
@@ -299,10 +299,10 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     t_end.tm_year = val_end_year + 100;
     t_end.tm_mon = val_end_month-1;
     t_end.tm_mday = val_end_day;
-    t_end.tm_hour = val_end_hour+2;
+    t_end.tm_hour = val_end_hour;
     t_end.tm_min = val_end_min;
     t_end.tm_sec = val_end_sec;
-    t_end.tm_isdst = -1;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+    t_end.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
     timestamp_end = mktime(&t_end);
     messageReceived->valEndTimestamp = timestamp_end;
 
@@ -322,8 +322,8 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     //**********************************
     int message_length = 0;
 	message_length |= (bitstream_ptr[(21+messageIndexShift)] &0xff)<<20;
-    message_length |= (bitstream_ptr[(22+messageIndexShift)]<<12 &0xff000);
-    message_length |= (bitstream_ptr[(23+messageIndexShift)]<<4 &0xff0);
+    message_length |= (bitstream_ptr[(22+messageIndexShift)]&0xff)<<12;
+    message_length |= (bitstream_ptr[(23+messageIndexShift)]&0xff)<<4;
     message_length |= bitstream_ptr[(24+messageIndexShift)] &0xf0;
 
     //**********************************
@@ -557,10 +557,10 @@ int parse_ultrashort(char *bitstream_ptr, struct messageFields *messageReceived)
     t_start.tm_year = val_start_year + 100;
     t_start.tm_mon = val_start_month-1;
     t_start.tm_mday = val_start_day;
-    t_start.tm_hour = val_start_hour+2;
+    t_start.tm_hour = val_start_hour;
     t_start.tm_min = val_start_min;
     t_start.tm_sec = val_start_sec;
-    t_start.tm_isdst = -1;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+    t_start.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
     timestamp_start = mktime(&t_start);
     messageReceived->valStartTimestamp = timestamp_start;
 
@@ -569,10 +569,10 @@ int parse_ultrashort(char *bitstream_ptr, struct messageFields *messageReceived)
     t_end.tm_year = val_end_year + 100;
     t_end.tm_mon = val_end_month-1;
     t_end.tm_mday = val_end_day;
-    t_end.tm_hour = val_end_hour+2;
+    t_end.tm_hour = val_end_hour;
     t_end.tm_min = val_end_min;
     t_end.tm_sec = val_end_sec;
-    t_end.tm_isdst = -1;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
+    t_end.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
     timestamp_end = mktime(&t_end);
     messageReceived->valEndTimestamp = timestamp_end;
 
