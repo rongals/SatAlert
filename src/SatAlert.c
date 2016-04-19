@@ -240,29 +240,30 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
     buffer8[8] = '\0';
 
 
-    struct tm * time_start;
+    struct tm time_start;
     time_t validity_start_time_t = validity_start;
     //time_start = localtime(&validity_start_time_t);
-    time_start = gmtime(&validity_start_time_t);
-    int val_start_year = time_start->tm_year-100;
-    int val_start_month = time_start->tm_mon+1;
-    int val_start_day = time_start->tm_mday;
-    int val_start_hour = time_start->tm_hour+1;
-    int val_start_min = time_start->tm_min;
-    int val_start_sec = time_start->tm_sec;
+    gmtime_r(&validity_start_time_t,&time_start);
+    int val_start_year = time_start.tm_year-100;
+    int val_start_month = time_start.tm_mon+1;
+    int val_start_day = time_start.tm_mday;
+    int val_start_hour = time_start.tm_hour;
+    int val_start_min = time_start.tm_min;
+    int val_start_sec = time_start.tm_sec;
 
-
-
-    struct tm * time_end;
+    struct tm time_end;
     time_t validity_end_time_t = validity_end;
     //time_end = localtime(&validity_end_time_t);
-    time_end =gmtime(&validity_end_time_t);
-    int val_end_year = time_end->tm_year-100;
-    int val_end_month = time_end->tm_mon+1;
-    int val_end_day = time_end->tm_mday;
-    int val_end_hour = time_end->tm_hour+1;
-    int val_end_min = time_end->tm_min;
-    int val_end_sec = time_end->tm_sec;
+    gmtime_r(&validity_end_time_t,&time_end);
+    int val_end_year = time_end.tm_year-100;
+    int val_end_month = time_end.tm_mon+1;
+    int val_end_day = time_end.tm_mday;
+    int val_end_hour = time_end.tm_hour;
+    int val_end_min = time_end.tm_min;
+    int val_end_sec = time_end.tm_sec;
+
+
+
 
     printf("Validity from [%i] %i/%i/%i %i:%i:%i to [%i] %i/%i/%i %i:%i:%i\n", validity_start, val_start_day,
     		val_start_month, val_start_year, val_start_hour, val_start_min, val_start_sec, validity_end,
@@ -433,27 +434,28 @@ int generate_cap(int priority, int validity_start, int validity_end, char* bitst
     buffer8[8] = '\0';
 
 
-    struct tm * time_start;
-    time_t validity_start_time_t = validity_start;
-    //time_start = localtime(&validity_start_time_t);
-    time_start = gmtime(&validity_start_time_t);
-    int val_start_year = time_start->tm_year-100;
-    int val_start_month = time_start->tm_mon+1;
-    int val_start_day = time_start->tm_mday;
-    int val_start_hour = time_start->tm_hour+1;
-    int val_start_min = time_start->tm_min;
-    int val_start_sec = time_start->tm_sec;
+    struct tm time_start;
+     time_t validity_start_time_t = validity_start;
+     //time_start = localtime(&validity_start_time_t);
+     gmtime_r(&validity_start_time_t,&time_start);
+     int val_start_year = time_start.tm_year-100;
+     int val_start_month = time_start.tm_mon+1;
+     int val_start_day = time_start.tm_mday;
+     int val_start_hour = time_start.tm_hour;
+     int val_start_min = time_start.tm_min;
+     int val_start_sec = time_start.tm_sec;
 
-    struct tm * time_end;
-    time_t validity_end_time_t = validity_end;
-    //time_end = localtime(&validity_end_time_t);
-    time_end = gmtime(&validity_end_time_t);
-    int val_end_year = time_end->tm_year-100;
-    int val_end_month = time_end->tm_mon+1;
-    int val_end_day = time_end->tm_mday;
-    int val_end_hour = time_end->tm_hour+1;
-    int val_end_min = time_end->tm_min;
-    int val_end_sec = time_end->tm_sec;
+     struct tm time_end;
+     time_t validity_end_time_t = validity_end;
+     //time_end = localtime(&validity_end_time_t);
+     gmtime_r(&validity_end_time_t,&time_end);
+     int val_end_year = time_end.tm_year-100;
+     int val_end_month = time_end.tm_mon+1;
+     int val_end_day = time_end.tm_mday;
+     int val_end_hour = time_end.tm_hour;
+     int val_end_min = time_end.tm_min;
+     int val_end_sec = time_end.tm_sec;
+
 
     printf("Validity from [%i] %i/%i/%i %i:%i:%i to [%i] %i/%i/%i %i:%i:%i\n", validity_start, val_start_day, val_start_month, val_start_year, val_start_hour, val_start_min, val_start_sec, validity_end, val_end_day, val_end_month, val_end_year, val_end_hour, val_end_min, val_end_sec);
 
@@ -671,28 +673,29 @@ int generate_ultrashort(int priority, int validity_start, int validity_end, char
     char buffer8[9];
     buffer8[8] = '\0';
 
+    struct tm time_start;
+     time_t validity_start_time_t = validity_start;
+     //time_start = localtime(&validity_start_time_t);
+     gmtime_r(&validity_start_time_t,&time_start);
+     int val_start_year = time_start.tm_year-100;
+     int val_start_month = time_start.tm_mon+1;
+     int val_start_day = time_start.tm_mday;
+     int val_start_hour = time_start.tm_hour;
+     int val_start_min = time_start.tm_min;
+     int val_start_sec = time_start.tm_sec;
 
-    struct tm * time_start;
-    time_t validity_start_time_t = validity_start;
-    //time_start = localtime(&validity_start_time_t);
-    time_start = gmtime(&validity_start_time_t);
-    int val_start_year = time_start->tm_year-100;
-    int val_start_month = time_start->tm_mon+1;
-    int val_start_day = time_start->tm_mday;
-    int val_start_hour = time_start->tm_hour+1;
-    int val_start_min = time_start->tm_min;
-    int val_start_sec = time_start->tm_sec;
+     struct tm time_end;
+     time_t validity_end_time_t = validity_end;
+     //time_end = localtime(&validity_end_time_t);
+     gmtime_r(&validity_end_time_t,&time_end);
+     int val_end_year = time_end.tm_year-100;
+     int val_end_month = time_end.tm_mon+1;
+     int val_end_day = time_end.tm_mday;
+     int val_end_hour = time_end.tm_hour;
+     int val_end_min = time_end.tm_min;
+     int val_end_sec = time_end.tm_sec;
 
-    struct tm * time_end;
-    time_t validity_end_time_t = validity_end;
-    //time_end = localtime(&validity_end_time_t);
-    time_end = gmtime(&validity_end_time_t);
-    int val_end_year = time_end->tm_year-100;
-    int val_end_month = time_end->tm_mon+1;
-    int val_end_day = time_end->tm_mday;
-    int val_end_hour = time_end->tm_hour+1;
-    int val_end_min = time_end->tm_min;
-    int val_end_sec = time_end->tm_sec;
+
 
     printf("Validity from [%i] %i/%i/%i %i:%i:%i to [%i] %i/%i/%i %i:%i:%i\n", validity_start, val_start_day, val_start_month, val_start_year, val_start_hour, val_start_min, val_start_sec, validity_end, val_end_day, val_end_month, val_end_year, val_end_hour, val_end_min, val_end_sec);
 
@@ -807,7 +810,7 @@ int generate_ultrashort(int priority, int validity_start, int validity_end, char
         int2bin(bitstream_ptr[i], buffer8, 8);
         //printf("bitstream_ptr[%i] = %s\n", i, buffer8);
     }
-    printf("bitstream = %s\n", bitstream_ptr);
+    //printf("bitstream = %s\n", bitstream_ptr);
     return 0;
 }
 

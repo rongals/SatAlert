@@ -283,6 +283,7 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
 
 
     //converting date data to timestamp format
+
     struct tm t_start;
     time_t timestamp_start;
     t_start.tm_year = val_start_year + 100;
@@ -291,9 +292,10 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     t_start.tm_hour = val_start_hour;
     t_start.tm_min = val_start_min;
     t_start.tm_sec = val_start_sec;
-    t_start.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
-    timestamp_start = mktime(&t_start);
+    timestamp_start = timegm(&t_start);
+
     messageReceived->valStartTimestamp = timestamp_start;
+
     struct tm t_end;
     time_t timestamp_end;
     t_end.tm_year = val_end_year + 100;
@@ -302,8 +304,8 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     t_end.tm_hour = val_end_hour;
     t_end.tm_min = val_end_min;
     t_end.tm_sec = val_end_sec;
-    t_end.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
-    timestamp_end = mktime(&t_end);
+    timestamp_end = timegm(&t_end);
+
     messageReceived->valEndTimestamp = timestamp_end;
 
      //**********************************
@@ -560,8 +562,7 @@ int parse_ultrashort(char *bitstream_ptr, struct messageFields *messageReceived)
     t_start.tm_hour = val_start_hour;
     t_start.tm_min = val_start_min;
     t_start.tm_sec = val_start_sec;
-    t_start.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
-    timestamp_start = mktime(&t_start);
+    timestamp_start = timegm(&t_start);
     messageReceived->valStartTimestamp = timestamp_start;
 
     struct tm t_end;
@@ -572,8 +573,7 @@ int parse_ultrashort(char *bitstream_ptr, struct messageFields *messageReceived)
     t_end.tm_hour = val_end_hour;
     t_end.tm_min = val_end_min;
     t_end.tm_sec = val_end_sec;
-    t_end.tm_isdst = 0;        // Is DST on? 1 = yes, 0 = no, -1 = unknown
-    timestamp_end = mktime(&t_end);
+    timestamp_end = timegm(&t_end);
     messageReceived->valEndTimestamp = timestamp_end;
 
     return 0;
