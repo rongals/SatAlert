@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/GenerateMAMESMessage.c \
 ../src/SatAlert.c \
 ../src/sae.c 
 
 OBJS += \
+./src/GenerateMAMESMessage.o \
 ./src/SatAlert.o \
 ./src/sae.o 
 
 C_DEPS += \
+./src/GenerateMAMESMessage.d \
 ./src/SatAlert.d \
 ./src/sae.d 
 
