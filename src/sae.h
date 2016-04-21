@@ -12,11 +12,15 @@
 #define MAMES_CAP_HEADER_LENGTH 	25
 #define MAMES_USHORT_LENGTH			25
 
+// to indicate unapplicable/not valid value in outputData fields
+#define NOT_APPLICABLE -1
+
 struct inputData{
     char *message;
     int messageId;
     int messagePriority;
     int valEndTimestamp;
+    int storedMsgLength;
     int onBoardTime;
     _Bool txRequest;
 };

@@ -16,71 +16,73 @@
 #include <ctype.h>
 
 
+#define VALIDITY_OFFSET 10
+#define PRIORITY 1
+
+int print_message(char *buffer, int buffer_l) {
+	char c;
+	int i;
+	for (i=0;i<buffer_l;i++) {
+		c=buffer[i];
+		if (isprint(c))
+			printf("%c",c);
+		else
+			printf("0x%x ",c);
+	}
+	printf("\n");
+
+	return EXIT_SUCCESS;
+}
+
 int main(int argc, char *argv[]){
 
-
+	char outbuf[1500];
+	int outbuf_l;
 	initMyRandom();
 	int i;
-	char c;
 	char gen_message[28];
-	//char messageToBeSent[1500];
-	//int msgTypeSequence[15] = {0,4,4,4,4,4,4,4,4,4,4,4,4,4,0};
-	//int msgPrioritySequence[15] = {5,0,6,7,6,8,8,6,5,0,0,0,0,0,0};
-	struct inputData dataIn = {gen_message, -1, -1, -1, -1, 0};
+	struct inputData dataIn = {gen_message, -1, -1, -1, -1, -1, 0};
 	struct outputData dataOut = {-1, -1, -1, -1, 0, 0};
-	int isMAMES = 0;
 
 	if (argc != 2 ) {
-		printf("usage: SatAlert 0=mames 1=isae\n");
+		printf("usage: SatAlert <mode>\nModes:\n"
+				"0(default)=auto sequence\n"
+				"1=CANCEL\n"
+				"2=ULTRASHORT\n"
+				"3=CAP\n"
+				"4=NO CAP\n\n");
 		exit(1);
 	}
 
+
 	switch (atoi(argv[1])) {
-	case 0:
-		isMAMES = 1;
+	case 1: //CANCEL
+		generateMAMES(CANCEL,MESSAGE_ID,PRIORITY,VALIDITY_OFFSET,outbuf,&outbuf_l);
+		print_message(outbuf, outbuf_l);
 		break;
-	default:
+	case 2: //US
+		generateMAMES(ULTRASHORT,MESSAGE_ID,PRIORITY,VALIDITY_OFFSET,outbuf,&outbuf_l);
+		print_message(outbuf, outbuf_l);
 		break;
-	}
+	case 3: //CAP
+		generateMAMES(CAP,MESSAGE_ID,PRIORITY,VALIDITY_OFFSET,outbuf,&outbuf_l);
+		print_message(outbuf, outbuf_l);
+		break;
+	case 4: //NOCAP
+		generateMAMES(NOCAP,MESSAGE_ID,PRIORITY,VALIDITY_OFFSET,outbuf,&outbuf_l);
+		print_message(outbuf, outbuf_l);
+		break;
+	default: // 0
 
-	if (isMAMES) {
-
-		char outbuf[1500];
-		int outbuf_l;
-
-		generateMAMES(101,10,1,10,outbuf,&outbuf_l);
-
-		for (i=0;i<1500;i++) {
-			c=outbuf[i];
-			if (isprint(c))
-					printf("%c",c);
-				else
-					printf("0x%x ",c);
-		}
-		printf("\n");
-
-
-	}
-	else {
 		for(i=0;i<15;i++){
 
 			time_t now = time(NULL);
 
 			dataIn.onBoardTime = now;
 
-			////int first_upload =  FIRST_UPLOAD;
-			////if(first_upload == 1)
-			////dataIn.messageId = MESSAGE_ID;
-			////dataIn.messagePriority = PRIORITY;
-			////dataIn.valEndTimestamp = VALIDITY_END;
-			////dataIn.txRequest = 0;
-
-
 			printf("\n\n\n\n\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n Step %i\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n", i);
 			int status = 0;
 			int rand_type = get_random_int(4)*2; //to be removed
-			//int rand_type = msgTypeSequence[i];
-			//int rand_priority = msgPrioritySequence[i];
 			int rand_priority = get_random_int(15);//to be removed
 			int rand_bool_nocap = get_random_int(2);//to be removed
 			int rand_validityStart = now -1; //to be removed
@@ -102,14 +104,9 @@ int main(int argc, char *argv[]){
 			printf("messagePriority = %i\n", dataIn.messagePriority);
 			printf("valEndTimestamp = %i\n", dataIn.valEndTimestamp);
 			printf("onBoardTime = %i\n", dataIn.onBoardTime);
+			printf("storedMsgLength = %i\n", dataIn.storedMsgLength);
 			printf("txRequest = %i\n", dataIn.txRequest);
 			printf("-----------------------------------\n");
-
-
-//			printf("rand_type = %i\n", rand_type);
-//			printf("rand_priority = %i\n", rand_priority);
-//			printf("rand_bool_nocap = %i\n", rand_bool_nocap);
-//			printf("rand_validityEnd = %i\n", rand_validityEnd);
 
 			if (rand_type < 6)
 				status = generateMessage(rand_type, rand_priority, rand_bool_nocap,
@@ -137,33 +134,58 @@ int main(int argc, char *argv[]){
 				printf("eraseTxQueue = %i\n", dataOut.eraseTxQueue);
 				printf("doNothing = %i\n", dataOut.doNothing);
 
-				if(dataOut.doNothing)
-					printf("\n********************************\nResult:\nTrasmission queue will not be overwrited!\n");
+				if (dataOut.doNothing) {
+
+					if (dataIn.storedMsgLength == NOT_APPLICABLE) {
+						printf("\n********************************\n"
+								"Result:\nEmpty storage");
+						printf("\n********************************\n");
+
+					} else {
+						printf("\n********************************\n"
+								"Result:\nStored message maintained");
+
+						if (dataIn.txRequest)
+							printf(" and transmitted\n");
+						else
+							printf("\n");
+
+						printf("********************************\n");
+					}
+				}
 				else {
 
 					if (dataOut.eraseTxQueue) { // ERASE
 
-						printf("\n********************************\nResult:\nStored message is not valid anymore:"
-								" trasmission queue will not be erased!\n");
+						printf("\n********************************\n"
+								"Result:\nStored message erased");
+						printf("\n********************************\n");
+
 
 					} else {// STORE
 
 						printf("\n********************************\n"
-								"Result:\nIncoming message stored in "
-								"trasmission queue: priority %i and valid until %i!\n",dataOut.messagePriority,
-								dataOut.valEndTimestamp);
+								"Result:\nIncoming message stored\n"
+								"Priority: %i\n"
+								"Valid until %i\n"
+								"Length %i",
+								dataOut.messagePriority,
+								dataOut.valEndTimestamp,
+								dataOut.outputMsgLenght);
+						printf("\n********************************\n");
 					}
 
 					dataIn.messageId = dataOut.messageId;
 					dataIn.messagePriority = dataOut.messagePriority;
 					dataIn.valEndTimestamp = dataOut.valEndTimestamp;
+					dataIn.storedMsgLength = dataOut.outputMsgLenght;
 				}
 
 
-			}
+			} // else status not 12345
 			sleep(1);
-		}
-	}
+		} // for loop
+	} // switch
 	return EXIT_SUCCESS;
 }
 

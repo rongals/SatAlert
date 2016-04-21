@@ -51,9 +51,9 @@ static int nocap_message_length = 264;
 // GENERATE MAMES
 //
 int generateMAMES(
+		enum test_message_type test_message,
 		int messageID,
 		int priority,
-		_Bool msg_nocap,
 		int validity_offset,
 		char *generated_message,
 		int *generated_message_length) {
@@ -63,22 +63,50 @@ int generateMAMES(
 	time_t validity_start = time(NULL) - TIME_ADVANCE;
 	time_t validity_end = validity_start + validity_offset;
 
-	generateMessage(
-			4, // Alert
-			priority,
-			msg_nocap,
-			validity_start,
-			validity_end,
-			generated_message);
+	switch (test_message) {
+	case CANCEL:
+		generateMessage(
+				CANCEL_MSG_TYPE,
+				priority,
+				0, // no cap
+				validity_start,
+				validity_end,
+				generated_message);
 
-	if (msg_nocap) { // NO_CAP
-		memcpy(generated_message + POFF_NOCAP, nocap_message_payload, nocap_message_length);
-		*generated_message_length = POFF_NOCAP + nocap_message_length;
-	}
-	else { // CAP
+		break;
+	case ULTRASHORT:
+		generateMessage(
+				ULTRASHORT_MSG_TYPE,
+				priority,
+				0, // no cap
+				validity_start,
+				validity_end,
+				generated_message);
+		break;
+	case CAP: // Alert CAP 1500 bytes long
+		generateMessage(
+				ALERT_MSG_TYPE,
+				priority,
+				0, // cap!
+				validity_start,
+				validity_end,
+				generated_message);
 		memcpy(generated_message + POFF_CAP, cap_message_payload, cap_message_length);
 		*generated_message_length = POFF_CAP + cap_message_length;
+		break;
+	default: // Non CAP alert of 500 bytes
+		generateMessage(
+				ALERT_MSG_TYPE,
+				priority,
+				1, // no cap
+				validity_start,
+				validity_end,
+				generated_message);
+		memcpy(generated_message + POFF_NOCAP, nocap_message_payload, nocap_message_length);
+		*generated_message_length = POFF_NOCAP + nocap_message_length;
+		break;
 	}
+
 
 	return 0;
 
