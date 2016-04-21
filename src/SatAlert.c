@@ -23,11 +23,11 @@ int main(int argc, char *argv[]){
 	int i;
 	char c;
 	char gen_message[28];
-	char messageToBeSent[1500];
+	//char messageToBeSent[1500];
 	//int msgTypeSequence[15] = {0,4,4,4,4,4,4,4,4,4,4,4,4,4,0};
 	//int msgPrioritySequence[15] = {5,0,6,7,6,8,8,6,5,0,0,0,0,0,0};
-	struct inputData dataIn = {gen_message, -1, -1, -1, 0};
-	struct outputData dataOut = {messageToBeSent, -1, -1, 0, 0};
+	struct inputData dataIn = {gen_message, -1, -1, -1, -1, 0};
+	struct outputData dataOut = {-1, -1, -1, -1, 0, 0};
 	int isMAMES = 0;
 
 	if (argc != 2 ) {
@@ -96,35 +96,22 @@ int main(int argc, char *argv[]){
 			else
 				dataIn.txRequest = 0; //to be removed
 
-			//// NEW MESSAGE MAMES HEADER
-			////int msg_id = MESSAGE_ID;
-			////int msg_type = MSG_TYPE;
-			////int msg_priority = PRIORITY;
-			////int msg_bool_nocap = MSG_NOCAP;
-			////int msg_validityEnd = VALIDITY_END;
 
-			printf("\n-----------------------------------\nInput stored parameters\n-----------------------------------\n");
+			printf("\n-----------------------------------\ninputData struct\n-----------------------------------\n");
+			printf("messageId = %i\n", dataIn.messageId);
 			printf("messagePriority = %i\n", dataIn.messagePriority);
 			printf("valEndTimestamp = %i\n", dataIn.valEndTimestamp);
-			printf("txRequest = %i\n", dataIn.txRequest);
 			printf("onBoardTime = %i\n", dataIn.onBoardTime);
+			printf("txRequest = %i\n", dataIn.txRequest);
 			printf("-----------------------------------\n");
 
-			////printf("\n-----------------------------------\nInput new message parameters\n-----------------------------------\n");
-			////printf("msg_id = %i\n", msg_id);
-			////printf("msg_type = %i\n", msg_type);
-			////printf("msg_priority = %i\n", msg_priority);
-			////printf("msg_bool_nocap = %i\n", msg_bool_nocap);
-			////printf("msg_validityEnd = %i\n", msg_validityEnd);
-			////if (msg_type < 6 ) status = generateMessage(msg_id, msg_type, msg_priority, msg_bool_nocap, time(NULL), msg_validityEnd, gen_message); ///to be updated!!!!
 
-			printf("rand_type = %i\n", rand_type);
-			printf("rand_priority = %i\n", rand_priority);
-			printf("rand_bool_nocap = %i\n", rand_bool_nocap);
-			printf("rand_validityEnd = %i\n", rand_validityEnd);
+//			printf("rand_type = %i\n", rand_type);
+//			printf("rand_priority = %i\n", rand_priority);
+//			printf("rand_bool_nocap = %i\n", rand_bool_nocap);
+//			printf("rand_validityEnd = %i\n", rand_validityEnd);
 
 			if (rand_type < 6)
-
 				status = generateMessage(rand_type, rand_priority, rand_bool_nocap,
 						rand_validityStart, rand_validityEnd, gen_message);
 
@@ -133,27 +120,46 @@ int main(int argc, char *argv[]){
 			else if(status == 3) printf("Validity Start time must be greater than Validity End time\n");
 			else if(status == 4) printf("Message type can be only in range [0,4]\n0=ultrashort\n1=mames update\n2=cancel\n3=mames ack\n4=mames alert\n");
 			else if(status == 5) printf("Kind of message not implemented yet\n");
-			else {
+			else { // status not 1,2,3,4 or 5
+
 				dataIn.message = gen_message;
-				dataOut.message = messageToBeSent;
 
 				printf("\nSending informations to SAE logic...\n");
 				saeFunction(&dataIn, &dataOut);
 
 
-				printf("\n-----------------------------------\n  Output Parameters \n-----------------------------------\n");
+				printf("\n-----------------------------------\noutputData struct\n-----------------------------------\n");
 
+				printf("messageId = %i\n", dataOut.messageId);
 				printf("messagePriority = %i\n", dataOut.messagePriority);
 				printf("valEndTimestamp = %i\n", dataOut.valEndTimestamp);
+				printf("outputMsgLenght = %i\n", dataOut.outputMsgLenght);
 				printf("eraseTxQueue = %i\n", dataOut.eraseTxQueue);
 				printf("doNothing = %i\n", dataOut.doNothing);
 
-				if(dataOut.doNothing) printf("\n********************************\nResult:\nTrasmission queue will not be overwrited!\n");
-				else if(dataOut.eraseTxQueue) printf("\n********************************\nResult:\nStored message is not valid anymore: trasmission queue will not be erased!\n");
-				else printf("\n********************************\nResult:\nIncoming message stored in trasmission queue: priority %i and valid until %i!\n", dataOut.messagePriority, dataOut.valEndTimestamp);
+				if(dataOut.doNothing)
+					printf("\n********************************\nResult:\nTrasmission queue will not be overwrited!\n");
+				else {
 
-				dataIn.messagePriority = dataOut.messagePriority;
-				dataIn.valEndTimestamp = dataOut.valEndTimestamp;
+					if (dataOut.eraseTxQueue) { // ERASE
+
+						printf("\n********************************\nResult:\nStored message is not valid anymore:"
+								" trasmission queue will not be erased!\n");
+
+					} else {// STORE
+
+						printf("\n********************************\n"
+								"Result:\nIncoming message stored in "
+								"trasmission queue: priority %i and valid until %i!\n",dataOut.messagePriority,
+								dataOut.valEndTimestamp);
+					}
+
+					dataIn.messageId = dataOut.messageId;
+					dataIn.messagePriority = dataOut.messagePriority;
+					dataIn.valEndTimestamp = dataOut.valEndTimestamp;
+				}
+
+
 			}
 			sleep(1);
 		}

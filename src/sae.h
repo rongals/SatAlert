@@ -21,7 +21,6 @@ struct inputData{
     _Bool txRequest;
 };
 struct outputData{
-    char *message;
     int messageId;
     int messagePriority;
     int valEndTimestamp;
