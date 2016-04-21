@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <ctype.h>
 
 
 int main(int argc, char *argv[]){
@@ -20,6 +21,7 @@ int main(int argc, char *argv[]){
 
 	initMyRandom();
 	int i;
+	char c;
 	char gen_message[28];
 	char messageToBeSent[1500];
 	//int msgTypeSequence[15] = {0,4,4,4,4,4,4,4,4,4,4,4,4,4,0};
@@ -46,9 +48,17 @@ int main(int argc, char *argv[]){
 		char outbuf[1500];
 		int outbuf_l;
 
-		generateMAMES(101,10,0,10,outbuf,&outbuf_l);
+		generateMAMES(101,10,1,10,outbuf,&outbuf_l);
 
-		printf("%s\n",outbuf);
+		for (i=0;i<1500;i++) {
+			c=outbuf[i];
+			if (isprint(c))
+					printf("%c",c);
+				else
+					printf("0x%x ",c);
+		}
+		printf("\n");
+
 
 	}
 	else {

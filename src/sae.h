@@ -8,6 +8,10 @@
 #ifndef SAE_H_
 #define SAE_H_
 
+#define MAMES_NOCAP_HEADER_LENGTH 	28
+#define MAMES_CAP_HEADER_LENGTH 	25
+#define MAMES_USHORT_LENGTH			25
+
 struct inputData{
     char *message;
     int messageId;

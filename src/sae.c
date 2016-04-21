@@ -86,83 +86,76 @@ void saeFunction(struct inputData *datiIn, struct outputData *datiOut){
 //*****************************************************************************
 int applyLogic(struct messageFields *messageReceived, struct inputData *datiIn, struct outputData *datiOut){
 
-    int OutMsgLenght = 0;
-    if(messageReceived->messageType == 0){
-        OutMsgLenght = 500;
-    }
-    if(messageReceived->messageType == 4){
-        OutMsgLenght = 1500;
-    }
-    //Use Case 2
-    if(datiIn->txRequest==1){
-        //printf("Tx Request received\n");
-        if(datiIn->valEndTimestamp > 0 && datiIn->valEndTimestamp <= datiIn->onBoardTime){ //-> Check if message is still valid and the previous was not a cancel msg
+	//Use Case 2
+	if(datiIn->txRequest==1){
+		//printf("Tx Request received\n");
+		if(datiIn->valEndTimestamp > 0 && datiIn->valEndTimestamp <= datiIn->onBoardTime){ //-> Check if message is still valid and the previous was not a cancel msg
 
-            //TEST CASE 2.1
-            //printf("TEST CASE 2.1 \n onboard tx queue need to be erased \n %i > 0 && %i <= %i\n", datiIn->valEndTimestamp, datiIn->valEndTimestamp, datiIn->onBoardTime);
-            datiOut->eraseTxQueue = 1; // onboard tx queue need to be erased
-            datiOut->messageId = -1;
-            datiOut->messagePriority = -1;
-            datiOut->valEndTimestamp = -1;
-            datiOut->doNothing = 0;
-        } else {
-            //TEST CASE 2.2
-            //printf("TEST CASE 2.2 \n nothing to do, tx queue is still valid \n $i <= 0 || %i > %i\n", datiIn->valEndTimestamp, datiIn->valEndTimestamp, datiIn->onBoardTime);
-            datiOut->doNothing = 1; // nothing to do, tx queue is still valid
-            datiOut->eraseTxQueue = 0;
-        }
-    } else {
-        //printf("Message received\n");
-        //Use Case 1
-        if(messageReceived->messageReference>0){//in case of cancel message
-            if(datiIn->messageId == messageReceived->messageReference) { // check if messagerefernce of cancel message is really the one in the tx queue
-                 //TEST CASE 1.4
-                 //printf("TEST CASE 1.4 \n onboard tx queue need to be erased \n %i > 0 && %i == %i\n", messageReceived->messageReference, datiIn->messageId, messageReceived->messageReference);
-                 datiOut->eraseTxQueue = 1; // onboard tx queue need to be erased
-                 datiOut->messageId = -1;
-                 datiOut->messagePriority = -1;
-                 datiOut->valEndTimestamp = -1;
-                 datiOut->doNothing = 0;
-            } else {//stored message is not the one to be deleted
-                  //TEST CASE 1.5
-                  //printf("TEST CASE 1.5 \n stored message is not the one to be deleted \n %i > 0 && %i != %i\n", messageReceived->messageReference, datiIn->messageId, messageReceived->messageReference);
-                  datiOut->doNothing = 1;
-                  datiOut->eraseTxQueue = 0;
-            }
-        } else {
-            if(messageReceived->messagePriority >= datiIn->messagePriority){ // new uploaded message has higher priority than previous stored message
-              //TEST CASE 1.3
-              //printf("TEST CASE 1.3 \n new uploaded message has higher priority than previous stored message \n %i <= 0 && %i >= %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority);
-              datiOut->message = datiIn->message;
-              datiOut->messageId = messageReceived->messageId;
-              datiOut->messagePriority = messageReceived->messagePriority;
-              datiOut->valEndTimestamp = messageReceived->valEndTimestamp;
-              datiOut->doNothing = 0;
-              datiOut->eraseTxQueue = 0;
-            } else {
-              if(datiIn->valEndTimestamp <= datiIn->onBoardTime){ // if previous stored message has higher priority but it is no more valid, new message will be saved
-                  //TEST CASE 1.1
-                  //printf("TEST CASE 1.1 \n previous stored message has higher priority but it is no more valid, new message will be saved \n %i<=0 && %i < %i && %i <= %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
-                  datiOut->message = datiIn->message;
-                  datiOut->messageId = messageReceived->messageId;
-                  datiOut->messagePriority = messageReceived->messagePriority;
-                  datiOut->valEndTimestamp = messageReceived->valEndTimestamp;
-                  datiOut->doNothing = 0;
-                  datiOut->eraseTxQueue = 0;
-              } else {//  previous stored message has higher priority and it is still valid
-                  //TEST CASE 1.2
-                  //printf("TEST CASE 1.2 \n previous stored message has higher priority and it is still valid \n %i<=0 && %i < %i && %i > %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
-                  datiOut->doNothing = 1;
-                  datiOut->eraseTxQueue = 0;
-                  OutMsgLenght = 0;
+			//TEST CASE 2.1
+			//printf("TEST CASE 2.1 \n onboard tx queue need to be erased \n %i > 0 && %i <= %i\n", datiIn->valEndTimestamp, datiIn->valEndTimestamp, datiIn->onBoardTime);
+			datiOut->eraseTxQueue = 1; // onboard tx queue need to be erased
+			datiOut->messageId = -1;
+			datiOut->messagePriority = -1;
+			datiOut->valEndTimestamp = -1;
+			datiOut->doNothing = 0;
+		} else {
+			//TEST CASE 2.2
+			//printf("TEST CASE 2.2 \n nothing to do, tx queue is still valid \n $i <= 0 || %i > %i\n", datiIn->valEndTimestamp, datiIn->valEndTimestamp, datiIn->onBoardTime);
+			datiOut->doNothing = 1; // nothing to do, tx queue is still valid
+			datiOut->eraseTxQueue = 0;
+		}
+	} else { // TX Request 0
+		//printf("Message received\n");
+		//Use Case 1
+		if(messageReceived->messageReference>0){//in case of cancel message
+			if(datiIn->messageId == messageReceived->messageReference) { // check if messagerefernce of cancel message is really the one in the tx queue
+				//TEST CASE 1.4
+				//printf("TEST CASE 1.4 \n onboard tx queue need to be erased \n %i > 0 && %i == %i\n", messageReceived->messageReference, datiIn->messageId, messageReceived->messageReference);
+				datiOut->eraseTxQueue = 1; // onboard tx queue need to be erased
+				datiOut->messageId = -1;
+				datiOut->messagePriority = -1;
+				datiOut->valEndTimestamp = -1;
+				datiOut->doNothing = 0;
+			} else {//stored message is not the one to be deleted
+				//TEST CASE 1.5
+				//printf("TEST CASE 1.5 \n stored message is not the one to be deleted \n %i > 0 && %i != %i\n", messageReceived->messageReference, datiIn->messageId, messageReceived->messageReference);
+				datiOut->doNothing = 1;
+				datiOut->eraseTxQueue = 0;
+			}
+		} else { // NOT a CANCEL
+			if(messageReceived->messagePriority >= datiIn->messagePriority){ // new uploaded message has higher priority than previous stored message
+				//TEST CASE 1.3
+				//printf("TEST CASE 1.3 \n new uploaded message has higher priority than previous stored message \n %i <= 0 && %i >= %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority);
+				datiOut->message = datiIn->message;
+				datiOut->messageId = messageReceived->messageId;
+				datiOut->messagePriority = messageReceived->messagePriority;
+				datiOut->valEndTimestamp = messageReceived->valEndTimestamp;
+				datiOut->doNothing = 0;
+				datiOut->eraseTxQueue = 0;
+			} else {
+				if(datiIn->valEndTimestamp <= datiIn->onBoardTime){ // if previous stored message has higher priority but it is no more valid, new message will be saved
+					//TEST CASE 1.1
+					//printf("TEST CASE 1.1 \n previous stored message has higher priority but it is no more valid, new message will be saved \n %i<=0 && %i < %i && %i <= %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
+					datiOut->message = datiIn->message;
+					datiOut->messageId = messageReceived->messageId;
+					datiOut->messagePriority = messageReceived->messagePriority;
+					datiOut->valEndTimestamp = messageReceived->valEndTimestamp;
+					datiOut->doNothing = 0;
+					datiOut->eraseTxQueue = 0;
+				} else {//  previous stored message has higher priority and it is still valid
+					//TEST CASE 1.2
+					//printf("TEST CASE 1.2 \n previous stored message has higher priority and it is still valid \n %i<=0 && %i < %i && %i > %i\n", messageReceived->messageReference, messageReceived->messagePriority, datiIn->messagePriority, datiIn->valEndTimestamp, datiIn->onBoardTime);
+					datiOut->doNothing = 1;
+					datiOut->eraseTxQueue = 0;
 
-              }
-            }
-        }
-        //printf("OutMsgLenght = %i\n", OutMsgLenght);
-        datiOut->outputMsgLenght = OutMsgLenght;
-    }
-    return 0;
+				}
+			}
+
+			datiOut->outputMsgLenght = messageReceived->MessageLength;
+
+		} // not a cancel
+	} // tx request 0
+	return 0;
 }
 
 
@@ -393,6 +386,11 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     message_length |= (bitstream_ptr[(22+messageIndexShift)]&0xff)<<12;
     message_length |= (bitstream_ptr[(23+messageIndexShift)]&0xff)<<4;
     message_length |= bitstream_ptr[(24+messageIndexShift)] &0xf0;
+
+    if (nht1 == 4)  // NO CAP MESSAGE
+    	messageReceived->MessageLength = message_length + MAMES_NOCAP_HEADER_LENGTH;
+    else
+    	messageReceived->MessageLength = message_length + MAMES_CAP_HEADER_LENGTH;
 
     //**********************************
     // NHT
@@ -646,6 +644,8 @@ int parse_ultrashort(char *bitstream_ptr, struct messageFields *messageReceived)
     //timestamp_end = mktime(&t_end) + t_end.tm_gmtoff;
     timestamp_end = internal_timegm(&t_end);
     messageReceived->valEndTimestamp = timestamp_end;
+
+	messageReceived->MessageLength = MAMES_USHORT_LENGTH;
 
     return 0;
 }

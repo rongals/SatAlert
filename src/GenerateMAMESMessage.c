@@ -1,10 +1,51 @@
 #include "GenerateMAMESMessage.h"
+#include "sae.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 int messageCounter = MESSAGE_ID;
+
+static char cap_message_payload[] =
+		"<\?xml version = \"1.0\" encoding = \"UTF-8\"\?>"
+		"<alert xmlns = \"urn:oasis:names:tc:emergency:cap:1.2\">"
+		"<identifier>KSTO1055887203</identifier>"
+		"<sender>KSTO@NWS.NOAA.GOV</sender>"
+		"<sent>2003-06-17T14:57:00-07:00</sent>"
+		"<status>Actual</status>"
+		"<msgType>Alert</msgType>"
+		"<scope>Public</scope>"
+		"<info>"
+		"<category>Met</category>"
+		"<event>SEVERE THUNDERSTORM</event>"
+		"<responseType>Shelter</responseType>"
+		"<urgency>Immediate</urgency>"
+		"<severity>Severe</severity>"
+		"<certainty>Observed</certainty>"
+		"<eventCode><valueName>SAME</valueName><value>SVR</value></eventCode>"
+		"<expires>2003-06-17T16:00:00-07:00</expires>"
+		"<senderName>NATIONAL WEATHER SERVICE SACRAMENTO CA</senderName>"
+		"<headline>SEVERE THUNDERSTORM WARNING</headline>"
+		"<description> AT 254 PM PDT...NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A SEVERE THUNDERSTORM OVER SOUTH CENTRAL ALPINE COUNTY...OR ABOUT 18 MILES SOUTHEAST OF KIRKWOOD...MOVING SOUTHWEST AT 5 MPH. HAIL...INTENSE RAIN AND STRONG DAMAGING WINDS ARE LIKELY WITH THIS STORM.</description>"
+		"<instruction>TAKE COVER IN A SUBSTANTIAL SHELTER UNTIL THE STORM PASSES.</instruction>"
+		"<contact>BARUFFALDI/JUSKIE</contact>"
+		"<area>"
+		"<areaDesc>EXTREME NORTH CENTRAL TUOLUMNE COUNTY IN CALIFORNIA, "
+		"EXTREME NORTHEASTERN CALAVERAS COUNTY IN CALIFORNIA, SOUTHWESTERN ALPINE COUNTY "
+		"IN CALIFORNIA</areaDesc>"
+		"<polygon>38.47,-120.14 38.34,-119.95 38.52,-119.74 38.62,-119.89 38.47,-120.14</polygon>"
+		"</area></info></alert>";
+
+static char nocap_message_payload[] = "AT 2:54 PM PDT...NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED"
+		" A SEVERE THUNDERSTORM OVER SOUTH CENTRAL ALPINE COUNTY...OR ABOUT 18 MILES SOUTHEAST OF"
+		" KIRKWOOD...MOVING SOUTHWEST AT 5 MPH. HAIL...INTENSE RAIN AND STRONG DAMAGING WINDS"
+		" ARE LIKELY WITH THIS STORM";
+
+
+static int cap_message_length = 1435;
+static int nocap_message_length = 264;
+
 
 //
 // GENERATE MAMES
@@ -17,46 +58,6 @@ int generateMAMES(
 		char *generated_message,
 		int *generated_message_length) {
 
-
-
-	char cap_message_payload[] =
-			"<\?xml version = \"1.0\" encoding = \"UTF-8\"\?>"
-			"<alert xmlns = \"urn:oasis:names:tc:emergency:cap:1.2\">"
-			"<identifier>KSTO1055887203</identifier>"
-			"<sender>KSTO@NWS.NOAA.GOV</sender>"
-			"<sent>2003-06-17T14:57:00-07:00</sent>"
-			"<status>Actual</status>"
-			"<msgType>Alert</msgType>"
-			"<scope>Public</scope>"
-			"<info>"
-			"<category>Met</category>"
-			"<event>SEVERE THUNDERSTORM</event>"
-			"<responseType>Shelter</responseType>"
-			"<urgency>Immediate</urgency>"
-			"<severity>Severe</severity>"
-			"<certainty>Observed</certainty>"
-			"<eventCode><valueName>SAME</valueName><value>SVR</value></eventCode>"
-			"<expires>2003-06-17T16:00:00-07:00</expires>"
-			"<senderName>NATIONAL WEATHER SERVICE SACRAMENTO CA</senderName>"
-			"<headline>SEVERE THUNDERSTORM WARNING</headline>"
-			"<description> AT 254 PM PDT...NATIONAL WEATHER SERVICE DOPPLER RADAR INDICATED A SEVERE THUNDERSTORM OVER SOUTH CENTRAL ALPINE COUNTY...OR ABOUT 18 MILES SOUTHEAST OF KIRKWOOD...MOVING SOUTHWEST AT 5 MPH. HAIL...INTENSE RAIN AND STRONG DAMAGING WINDS ARE LIKELY WITH THIS STORM.</description>"
-			"<instruction>TAKE COVER IN A SUBSTANTIAL SHELTER UNTIL THE STORM PASSES.</instruction>"
-			"<contact>BARUFFALDI/JUSKIE</contact>"
-			"<area>"
-			"<areaDesc>EXTREME NORTH CENTRAL TUOLUMNE COUNTY IN CALIFORNIA, "
-			"EXTREME NORTHEASTERN CALAVERAS COUNTY IN CALIFORNIA, SOUTHWESTERN ALPINE COUNTY "
-			"IN CALIFORNIA</areaDesc>"
-			"<polygon>38.47,-120.14 38.34,-119.95 38.52,-119.74 38.62,-119.89 38.47,-120.14</polygon>"
-			"</area></info></alert>";
-
-	char nocap_message_payload[] = "AT 2:54 PM PDT…NATIONAL WEATHER SERVICE DOPPLER "
-			"RADAR INDICATED A SEVERE THUNDERSTORM OVER SOUTH CENTRAL ALPINE COUNTY..."
-			"OR ABOUT 18 MILES SOUTHEAST OF KIRKWOOD...MOVING SOUTHWEST AT 5 MPH. HAIL"
-			"...INTENSE RAIN AND STRONG DAMAGING WINDS ARE LIKELY WITH THIS STORM";
-
-
-	int cap_message_length = 1435;
-	int nocap_message_length = 262;
 
 	messageCounter = messageID;
 	time_t validity_start = time(NULL) - TIME_ADVANCE;
@@ -187,7 +188,7 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
     // messageID + alertProviderID
     //********************************
     int gen_message_id = messageCounter;
-    int gen_provider_id = get_random_int(4095);
+    int gen_provider_id = MAMES_TEST_PROVIDER_ID;
     //int2bin(gen_message_id, buffer, BUF_SIZE - 1);
     //printf("gen_message_id = %s -> %i\n", buffer, gen_message_id);
     printf("gen_message_id = %i\n", gen_message_id);
@@ -235,7 +236,7 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
      //********************************
     //  issuer ID
     //********************************
-    int gen_issuer = get_random_int(4095);
+    int gen_issuer = MAMES_TEST_ALERT_ISSUER_ID;
     //int2bin(gen_issuer, buffer, BUF_SIZE - 1);
     //printf("gen_issuer = %s -> %i\n", buffer, gen_issuer);
     printf("gen_issuer = %i\n", gen_issuer);
@@ -294,7 +295,7 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
     //********************************
     // NHT + language ID
     //********************************
-    int language_id = get_random_int(4095);
+    int language_id = MAMES_LANGUAGE_ENG;
     //int2bin(language_id, buffer, BUF_SIZE - 1);
     //printf("language_id = %s -> %i\n", buffer, language_id);
     printf("language_id = %i\n", language_id);
@@ -305,17 +306,17 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
 
 
      //********************************
-    // message length + NHT
+    // payload length + NHT
     //********************************
-    int message_length = get_random_int(268435456);
-    //int2bin(message_length, buffer, BUF_SIZE - 1);
-    //printf("message_length = %s -> %i\n", buffer, message_length);
-    printf("message_length = %i\n", message_length);
+    int payload_length = nocap_message_length;
+    //int2bin(payload_length, buffer, BUF_SIZE - 1);
+    //printf("payload_length = %s -> %i\n", buffer, payload_length);
+    printf("payload_length = %i\n", payload_length);
 
-    bitstream_ptr[24] = message_length>>20;
-    bitstream_ptr[25] = (message_length>>12) &0xff;
-    bitstream_ptr[26] = (message_length>>4) &0xff;
-    bitstream_ptr[27] = (message_length &0xf)<<4;
+    bitstream_ptr[24] = payload_length>>20;
+    bitstream_ptr[25] = (payload_length>>12) &0xff;
+    bitstream_ptr[26] = (payload_length>>4) &0xff;
+    bitstream_ptr[27] = (payload_length &0xf)<<4;
     bitstream_ptr[27] |= NOHEADER_NHT &0xf;
 
     if(verbose) {
@@ -328,7 +329,7 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
 }
 
 //*****************************************************************************
-//                     CAP=4 false
+//                     NO_CAP false (so it is CAP)
 //*****************************************************************************
 int generate_cap(int priority, int validity_start, int validity_end, char* bitstream_ptr){
     printf("********************************\n  CAP MESSAGE generated \n ********************************\n");
@@ -377,7 +378,7 @@ int generate_cap(int priority, int validity_start, int validity_end, char* bitst
     // messageID + alertProviderID
     //********************************
     int gen_message_id = messageCounter;
-    int gen_provider_id = get_random_int(4095);
+    int gen_provider_id = MAMES_TEST_PROVIDER_ID;
     int2bin(gen_message_id, buffer, BUF_SIZE - 1);
     printf("gen_message_id = %s -> %i\n", buffer, gen_message_id);
     int2bin(gen_provider_id, buffer, BUF_SIZE - 1);
@@ -454,7 +455,7 @@ int generate_cap(int priority, int validity_start, int validity_end, char* bitst
     //********************************
     // NHT + language ID
     //********************************
-    int language_id = get_random_int(4095);
+    int language_id = MAMES_LANGUAGE_ENG;
     int2bin(language_id, buffer, BUF_SIZE - 1);
     printf("language_id = %s -> %i\n", buffer, language_id);
 
@@ -466,14 +467,13 @@ int generate_cap(int priority, int validity_start, int validity_end, char* bitst
      //********************************
     // message length + NHT
     //********************************
-    int message_length = get_random_int(268435456);
-    int2bin(message_length, buffer, BUF_SIZE - 1);
-    printf("message_length = %s -> %i\n", buffer, message_length);
+    int payload_length = cap_message_length;
+    printf("payload_length = %s -> %i\n", buffer, payload_length);
 
-    bitstream_ptr[21] = message_length>>20;
-    bitstream_ptr[22] = (message_length>>12) &0xff;
-    bitstream_ptr[23] = (message_length>>4) &0xff;
-    bitstream_ptr[24] = (message_length &0xf)<<4;
+    bitstream_ptr[21] = payload_length>>20;
+    bitstream_ptr[22] = (payload_length>>12) &0xff;
+    bitstream_ptr[23] = (payload_length>>4) &0xff;
+    bitstream_ptr[24] = (payload_length &0xf)<<4;
     bitstream_ptr[24] |= NOHEADER_NHT &0xf;
 
 
@@ -509,7 +509,7 @@ int generate_cancel(int priority, int validity_start, int validity_end, char* bi
     // messageID + alertProviderID
     //********************************
     int gen_message_id = messageCounter;
-    int gen_provider_id = get_random_int(4095);
+    int gen_provider_id = MAMES_TEST_PROVIDER_ID;
     int2bin(gen_message_id, buffer, BUF_SIZE - 1);
     printf("gen_message_id = %s -> %i\n", buffer, gen_message_id);
     int2bin(gen_provider_id, buffer, BUF_SIZE - 1);
@@ -617,7 +617,7 @@ int generate_ultrashort(int priority, int validity_start, int validity_end, char
     // messageID + alertProviderID
     //********************************
     int gen_message_id = messageCounter;
-    int gen_provider_id = get_random_int(4095);
+    int gen_provider_id = MAMES_TEST_PROVIDER_ID;
     int2bin(gen_message_id, buffer, BUF_SIZE - 1);
     printf("gen_message_id = %s -> %i\n", buffer, gen_message_id);
     int2bin(gen_provider_id, buffer, BUF_SIZE - 1);
@@ -649,7 +649,7 @@ int generate_ultrashort(int priority, int validity_start, int validity_end, char
     // priority + issuer ID
     //********************************
     int gen_priority = priority;
-    int gen_issuer = get_random_int(4095);
+    int gen_issuer = MAMES_TEST_ALERT_ISSUER_ID;
     int2bin(gen_priority, buffer, BUF_SIZE - 1);
     printf("gen_priority = %s -> %i\n", buffer, gen_priority);
     int2bin(gen_issuer, buffer, BUF_SIZE - 1);
