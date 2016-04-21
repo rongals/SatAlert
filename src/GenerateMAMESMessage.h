@@ -17,7 +17,7 @@
 #define ULTRASHORT_MSG_TYPE 0 //0=ultrashort, 1=mames update, 2=cancel, 3=mames ack, 4=mames alert // to be removed
 #define CANCEL_MSG_TYPE 2 // to be removed
 #define ALERT_MSG_TYPE 4 // to be removed
-#define MESSAGE_ID 12345
+#define MESSAGE_ID 0x1e3
 
 #define MAMES_TEST_PROVIDER_ID 1
 #define MAMES_TEST_ALERT_ISSUER_ID 3

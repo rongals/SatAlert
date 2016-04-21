@@ -197,7 +197,7 @@ int generate_nocap(int priority, int validity_start, int validity_end, char* bit
     printf("gen_provider_id = %i\n", gen_provider_id);
 
     gen_message_id = gen_message_id << 12;
-    gen_message_id |= gen_provider_id;
+    gen_message_id |= (gen_provider_id &0xfff);
     bitstream_ptr[3] = gen_message_id &0xff;
     bitstream_ptr[2] = (gen_message_id>>8) &0xff;
     bitstream_ptr[1] = (gen_message_id>>16) &0xff;

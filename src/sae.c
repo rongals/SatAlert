@@ -194,9 +194,9 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
     // message_id + alert_provider_id
     //**********************************
     int messageId = 0;
-    messageId |= (bitstream_ptr[1] &0xff);
+    messageId |= bitstream_ptr[1];
     messageId =  messageId<<4;
-    messageId |= ((bitstream_ptr[2] &0xff)>>4 &0xf);
+    messageId |= (((bitstream_ptr[2] &0xf0) >>4) &0x0f);
     messageReceived->messageId = messageId;
 
     int alertProviderId = 0;
@@ -402,9 +402,9 @@ int parse_cancel(char *bitstream_ptr, struct messageFields *messageReceived){
     // messageID + alertProviderID
     //********************************
     int messageId = 0;
-    messageId |= (bitstream_ptr[1] &0xff);
+    messageId |= bitstream_ptr[1];
     messageId =  messageId<<4;
-    messageId |= (bitstream_ptr[2]>>4 &0xf);
+    messageId |= (((bitstream_ptr[2] &0xf0) >>4) &0x0f);
     messageReceived->messageId = messageId;
 
     int alertProviderId = 0;
@@ -479,9 +479,9 @@ int parse_ultrashort(char *bitstream_ptr, struct messageFields *messageReceived)
     // message_id + alert_provider_id
     //**********************************
     int messageId = 0;
-    messageId |= (bitstream_ptr[1] &0xff);
+    messageId |= bitstream_ptr[1];
     messageId =  messageId<<4;
-    messageId |= (bitstream_ptr[2]>>4 &0xf);
+    messageId |= (((bitstream_ptr[2] &0xf0) >>4) &0x0f);
     messageReceived->messageId = messageId;
 
     int alertProviderId = 0;
