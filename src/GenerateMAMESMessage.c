@@ -501,7 +501,7 @@ int generate_cap(int priority, int validity_start, int validity_end, char* bitst
     bitstream_ptr[21] = payload_length>>20;
     bitstream_ptr[22] = (payload_length>>12) &0xff;
     bitstream_ptr[23] = (payload_length>>4) &0xff;
-    bitstream_ptr[24] = (payload_length &0xf)<<4;
+    bitstream_ptr[24] = ((payload_length &0xf)<<4) &0xf0;
     bitstream_ptr[24] |= NOHEADER_NHT &0xf;
 
 

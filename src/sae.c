@@ -377,7 +377,7 @@ int parse_alert(char *bitstream_ptr, struct messageFields *messageReceived){
 	message_length |= (bitstream_ptr[(21+messageIndexShift)] &0xff)<<20;
     message_length |= (bitstream_ptr[(22+messageIndexShift)]&0xff)<<12;
     message_length |= (bitstream_ptr[(23+messageIndexShift)]&0xff)<<4;
-    message_length |= bitstream_ptr[(24+messageIndexShift)] &0xf0;
+    message_length |= (bitstream_ptr[(24+messageIndexShift)] &0xf0)>>4;
 
     if (nht1 == 4)  // NO CAP MESSAGE
     	messageReceived->MessageLength = message_length + MAMES_NOCAP_HEADER_LENGTH;
